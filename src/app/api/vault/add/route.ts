@@ -12,6 +12,7 @@ export async function POST(req : Request){
         const entry = await Vault.create({userId,data,iv});
         return NextResponse.json({message:"Data added successfully",entry},{status:201});
     } catch (error) {
+        console.error("Add vault error:", error);
         return NextResponse.json({ error: "Failed to add vault item" }, { status: 500 });
     }
 }

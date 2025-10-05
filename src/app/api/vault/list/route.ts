@@ -13,6 +13,7 @@ export async function POST(req : Request){
             return NextResponse.json({items},{status:200});
 
     } catch (error) {
+        console.error("List vault error:", error);
         return NextResponse.json({ error: "Failed to fetch vault items" }, { status: 500 });
     }
 }
