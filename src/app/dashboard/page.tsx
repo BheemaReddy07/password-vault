@@ -30,6 +30,7 @@ export default function Dashboard() {
         upper: true,
         numbers: true,
         symbols: false,
+        excludeLookAlikes: false,
     });
     const [saveBtn, setSaveBtn] = useState(false);
     const [saveFormShow, setSaveFormShow] = useState(false);
@@ -276,11 +277,17 @@ export default function Dashboard() {
         }
     };
 
-    const filteredVault = vault.filter((item) =>
-        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (item.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+    const filteredVault = vault.filter(item =>
+        (item.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+        (item.username?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
+        (item.url?.toLowerCase() || "").includes(searchQuery.toLowerCase())
     );
+
+ 
+    
+
+
+
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
@@ -306,6 +313,7 @@ export default function Dashboard() {
                     handleGenerate={handleGenerate}
                     loading={loading}
                     error={error}
+
                 />
                 <PasswordDisplay
                     password={password}
@@ -387,6 +395,9 @@ export default function Dashboard() {
                         searchQuery={searchQuery}
                     />
                 )}
+
+               
+                 
             </div>
         </div>
     );
