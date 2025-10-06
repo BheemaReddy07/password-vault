@@ -12,7 +12,7 @@ import VaultExportImport from "@/components/VaultExportImport";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 
-interface VaultItem {
+export interface VaultItem {
     id: string;
     title: string;
     username: string;
@@ -22,7 +22,8 @@ interface VaultItem {
 }
 
 export default function Dashboard() {
-    const [userId, setUserId] = useState<any>(null);
+    const [userId, setUserId] = useState<string | null>(null);
+
     const router = useRouter();
 
     const [password, setPassword] = useState("");
@@ -44,7 +45,8 @@ export default function Dashboard() {
     const [visiblePasswords, setVisiblePasswords] = useState<{ [key: string]: boolean }>({});
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [editing, setEditing] = useState<any | null>(null);
+    const [editing, setEditing] = useState<VaultItem | null>(null);
+
 
 
     const [title, setTitle] = useState("");
@@ -58,7 +60,7 @@ export default function Dashboard() {
     useEffect(() => {
         async function setupKey() {
             try {
-                let rawkeyStr = localStorage.getItem("vault_key");
+                const rawkeyStr = localStorage.getItem("vault_key");
                 let keyArray: Uint8Array;
                 if (!rawkeyStr) {
                     const raw = crypto.getRandomValues(new Uint8Array(32));
