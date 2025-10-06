@@ -1,6 +1,19 @@
 import React from "react";
 import { VaultItem } from "@/app/dashboard/page";
 
+function highlightMatch(text: string, query: string) {
+    if (!query) return text;
+    const regex = new RegExp(`(${query})`, "gi");
+    const parts = text.split(regex);
+    return parts.map((part, i) =>
+        regex.test(part) ? (
+            <span key={i} className="bg-yellow-200">{part}</span>
+        ) : (
+            part
+        )
+    );
+}
+
 interface VaultListProps {
     vault: VaultItem[];
     visiblePasswords: { [key: string]: boolean };
@@ -9,6 +22,7 @@ interface VaultListProps {
     handleEdit: (item: VaultItem) => void;
     handleDelete: (id: string) => void;
     loading: boolean;
+    searchQuery: string;
 }
 
 const VaultList: React.FC<VaultListProps> = ({
@@ -19,10 +33,11 @@ const VaultList: React.FC<VaultListProps> = ({
     handleEdit,
     handleDelete,
     loading,
+    searchQuery,
 }) => {
     return (
         <div className="mt-10">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 text-center">🔐 My Vault</h2>
+            
             {vault.length === 0 ? (
                 <p className="text-gray-500 text-center">No entries in vault</p>
             ) : (
@@ -33,9 +48,9 @@ const VaultList: React.FC<VaultListProps> = ({
                             className="bg-white border border-gray-200 rounded-xl shadow-md p-5 flex flex-col justify-between hover:shadow-lg transition"
                         >
                             <div>
-                                <h3 className="font-semibold text-lg text-gray-800 mb-2">{item.title}</h3>
+                                <h3 className="font-semibold text-lg text-gray-800 mb-2">{highlightMatch(item.title,searchQuery)}</h3>
                                 <p className="text-sm text-gray-600 mb-1">
-                                    <span className="font-medium">Username:</span> {item.username}
+                                    <span className="font-medium">Username:</span> {highlightMatch(item.username, searchQuery)}
                                 </p>
                                 <p className="text-sm text-gray-600 mb-1 flex items-center gap-2">
                                     <span className="font-medium">Password:</span>
@@ -61,7 +76,7 @@ const VaultList: React.FC<VaultListProps> = ({
                                     </p>
                                 )}
                                 {item.notes && (
-                                    <p className="text-sm text-gray-500 italic">💡 {item.notes}</p>
+                                    <p className="text-sm text-gray-500 italic">💡 {highlightMatch(item.notes, searchQuery)}</p>
                                 )}
                             </div>
                             <div className="flex flex-wrap gap-2 mt-4">

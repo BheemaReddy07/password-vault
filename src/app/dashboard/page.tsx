@@ -23,6 +23,8 @@ export default function Dashboard() {
     const [vault, setVault] = useState<VaultItem[]>([]);
     const [key, setKey] = useState<CryptoKey | null>(null);
     const [length, setLength] = useState(12);
+    const [searchQuery, setSearchQuery] = useState("");
+
     const [options, setOptions] = useState({
         lower: true,
         upper: true,
@@ -274,6 +276,12 @@ export default function Dashboard() {
         }
     };
 
+    const filteredVault = vault.filter((item) =>
+        item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (item.notes?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+    );
+
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
@@ -351,15 +359,32 @@ export default function Dashboard() {
                 </div>
 
                 {/* Vault Section */}
+
                 {showVault && (
+                    <div className="mb-4">
+                        <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">🔐 My Vault</h2>
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Search vault..."
+                            className="w-full p-2 border border-gray-300 rounded-lg text-black"
+                            disabled={loading}
+                        />
+                    </div>
+                )}
+
+                {showVault && (
+
                     <VaultList
-                        vault={vault}
+                        vault={filteredVault}
                         visiblePasswords={visiblePasswords}
                         setVisiblePasswords={setVisiblePasswords}
                         handleCopyVaultPassword={handleCopyVaultPassword}
                         handleEdit={handleEdit}
                         handleDelete={handledelete}
                         loading={loading}
+                        searchQuery={searchQuery}
                     />
                 )}
             </div>
