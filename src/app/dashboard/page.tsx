@@ -115,8 +115,8 @@ export default function Dashboard() {
     };
     // Load vault when key is ready
     useEffect(() => {
-        if (key && userId) loadVault();
-    }, [key , userId]);
+    if (key && userId) loadVault();
+}, [key, userId]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -234,7 +234,7 @@ export default function Dashboard() {
             const data = { title, username, password, url, notes };
             const encrypted = await encryptData(key, data);
             const endpoint = editing ? "/api/vault/update" : "/api/vault/add";
-            const payload = editing ? { id: editing.id, userId, data: encrypted.data, iv: encrypted.iv } : { userId, data: encrypted.data, iv: encrypted.iv };
+            const payload = editing ? { id: editing.id, userId, data: encrypted.data, iv: encrypted.iv } : {  data: encrypted.data, iv: encrypted.iv };
             const res = await fetch(endpoint, {
                 method: editing ? "PUT" : "POST",
                 headers: { "Content-Type": "application/json" },
@@ -401,7 +401,7 @@ export default function Dashboard() {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        userId,
+                        
                         data: encrypted.data,
                         iv: encrypted.iv,
                     }),

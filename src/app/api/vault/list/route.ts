@@ -1,21 +1,22 @@
 import { NextResponse } from "next/server";
 import dbConnect from "@/lib/mongodb";
 import Vault from "@/models/Vault";
-import User from "@/models/User";
-export async function POST(req : Request){
-    try {
-       await dbConnect();
-         const {userId} = await req.json();
-            if(!userId){    
-                return NextResponse.json({message:"UserId is required"},{status:400});
-            }  
-            console.log("Fetching vault for userId:", userId); 
-            const items = await Vault.find({userId});
-            console.log("Found entries:", items);
-            return NextResponse.json({items},{status:200});
+import jwt from "jsonwebtoken";
 
-    } catch (error) {
-        console.error("List vault error:", error);
-        return NextResponse.json({ error: "Failed to fetch vault items" }, { status: 500 });
+export async function POST(req: Request) {
+    try {
+        await dbConnect();
+
+        const token = req.headers.get("cookie")?.split("token=")[1]?.split(";")[0];
+        if (!token) return NextResponse.json({ items: [] }, { status: 401 });
+
+        const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
+        const userId = decoded.userId;
+
+        const items = await Vault.find({ userId }).sort({ createdAt: -1 });
+        return NextResponse.json({ items });
+    } catch (err) {
+        console.error("Vault fetch error:", err);
+        return NextResponse.json({ items: [] }, { status: 500 });
     }
 }
