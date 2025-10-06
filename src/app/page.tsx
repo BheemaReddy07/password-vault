@@ -59,8 +59,8 @@ export default function Home() {
     {[
       { icon: "🔑", title: "Password Generator", desc: "Customizable length & rules." },
       { icon: "🔐", title: "Encrypted Vault", desc: "Your data never leaves unencrypted." },
-      { icon: "🖱️", title: "Copy & Auto-Clear", desc: "Clipboard clears in 10s." },
-      { icon: "🌙", title: "Dark Mode", desc: "Easy on the eyes anytime." },
+      { icon: "🖱️", title: "Copy & Auto-Clear", desc: "Clipboard clears in 15s." },
+      { icon: "📃", title: "Import & Export", desc: "Easy on the password backups" },
     ].map((f, i) => (
       <div key={i} className="p-6 border rounded-lg bg-white   shadow transition-colors">
         <div className="text-3xl mb-2">{f.icon}</div>
