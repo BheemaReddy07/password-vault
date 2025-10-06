@@ -10,6 +10,7 @@ import VaultList from "@/components/VaultList";
 import PasswordDisplay from "@/components/PasswordDisplay";
 import VaultExportImport from "@/components/VaultExportImport";
 import { useRouter } from "next/navigation";
+import Navbar from "@/components/Navbar";
 
 interface VaultItem {
     id: string;
@@ -115,8 +116,8 @@ export default function Dashboard() {
     };
     // Load vault when key is ready
     useEffect(() => {
-    if (key && userId) loadVault();
-}, [key, userId]);
+        if (key && userId) loadVault();
+    }, [key, userId]);
 
     useEffect(() => {
         const fetchUser = async () => {
@@ -234,7 +235,7 @@ export default function Dashboard() {
             const data = { title, username, password, url, notes };
             const encrypted = await encryptData(key, data);
             const endpoint = editing ? "/api/vault/update" : "/api/vault/add";
-            const payload = editing ? { id: editing.id, userId, data: encrypted.data, iv: encrypted.iv } : {  data: encrypted.data, iv: encrypted.iv };
+            const payload = editing ? { id: editing.id, userId, data: encrypted.data, iv: encrypted.iv } : { data: encrypted.data, iv: encrypted.iv };
             const res = await fetch(endpoint, {
                 method: editing ? "PUT" : "POST",
                 headers: { "Content-Type": "application/json" },
@@ -401,7 +402,7 @@ export default function Dashboard() {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
-                        
+
                         data: encrypted.data,
                         iv: encrypted.iv,
                     }),
@@ -432,136 +433,139 @@ export default function Dashboard() {
 
 
     return (
-        <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+        <>
+            <Navbar />
+            <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
 
-            <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
-                <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
-                    Password Generator
-                </h1>
-
-
-
-                {/* Error Message */}
-                {error && (
-                    <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
-                )}
-
-                {/* Loading Indicator */}
-                {loading && (
-                    <p className="text-blue-500 text-sm mb-4 text-center">Loading...</p>
-                )}
-                <PasswordGenerator
-                    length={length}
-                    options={options}
-                    setLength={setLength}
-                    setOptions={setOptions}
-                    handleGenerate={handleGenerate}
-                    loading={loading}
-                    error={error}
-
-                />
-                <PasswordDisplay
-                    password={password}
-                    handleCopy={handleCopy}
-                    loading={loading}
-                />
+                <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
+                    <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
+                        Password Generator
+                    </h1>
 
 
 
-                {/* Save to Vault Button */}
-                {saveBtn && (
+                    {/* Error Message */}
+                    {error && (
+                        <p className="text-red-500 text-sm mb-4 text-center">{error}</p>
+                    )}
+
+                    {/* Loading Indicator */}
+                    {loading && (
+                        <p className="text-blue-500 text-sm mb-4 text-center">Loading...</p>
+                    )}
+                    <PasswordGenerator
+                        length={length}
+                        options={options}
+                        setLength={setLength}
+                        setOptions={setOptions}
+                        handleGenerate={handleGenerate}
+                        loading={loading}
+                        error={error}
+
+                    />
+                    <PasswordDisplay
+                        password={password}
+                        handleCopy={handleCopy}
+                        loading={loading}
+                    />
+
+
+
+                    {/* Save to Vault Button */}
+                    {saveBtn && (
+                        <div className="mb-6">
+                            <button
+                                onClick={() => setSaveFormShow((prev) => !prev)}
+                                className="w-full bg-blue-500 cursor-pointer text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200 disabled:bg-blue-300"
+                                disabled={loading}
+                            >
+                                Save to Vault
+                            </button>
+                        </div>
+                    )}
+
+                    {/* Save to Vault Form */}
+                    {saveFormShow && (
+                        <SaveVaultForm
+                            title={title}
+                            username={username}
+                            password={password}
+                            url={url}
+                            notes={notes}
+                            setTitle={setTitle}
+                            setUsername={setUsername}
+                            setPassword={setPassword}
+                            setUrl={setUrl}
+                            setNotes={setNotes}
+                            handleSave={handleSave}
+                            editing={editing}
+                            loading={loading}
+                        />
+                    )}
+
+                    {/* Show Vault Button */}
                     <div className="mb-6">
                         <button
-                            onClick={() => setSaveFormShow((prev) => !prev)}
+                            onClick={() => setShowVault((prev) => !prev)}
                             className="w-full bg-blue-500 cursor-pointer text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200 disabled:bg-blue-300"
                             disabled={loading}
                         >
-                            Save to Vault
+                            {showVault ? "Hide Vault" : "Show Vault"}
                         </button>
                     </div>
-                )}
 
-                {/* Save to Vault Form */}
-                {saveFormShow && (
-                    <SaveVaultForm
-                        title={title}
-                        username={username}
-                        password={password}
-                        url={url}
-                        notes={notes}
-                        setTitle={setTitle}
-                        setUsername={setUsername}
-                        setPassword={setPassword}
-                        setUrl={setUrl}
-                        setNotes={setNotes}
-                        handleSave={handleSave}
-                        editing={editing}
-                        loading={loading}
-                    />
-                )}
+                    {/* Vault Section */}
 
-                {/* Show Vault Button */}
-                <div className="mb-6">
-                    <button
-                        onClick={() => setShowVault((prev) => !prev)}
-                        className="w-full bg-blue-500 cursor-pointer text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-200 disabled:bg-blue-300"
-                        disabled={loading}
-                    >
-                        {showVault ? "Hide Vault" : "Show Vault"}
-                    </button>
-                </div>
+                    {showVault && (
+                        <div className="mb-4">
+                            <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">🔐 My Vault</h2>
+                            <input
+                                type="text"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                placeholder="Search vault..."
+                                className="w-full p-2 border border-gray-300 rounded-lg text-black"
+                                disabled={loading}
+                            />
+                        </div>
+                    )}
 
-                {/* Vault Section */}
+                    {showVault && (
 
-                {showVault && (
-                    <div className="mb-4">
-                        <h2 className="text-2xl font-bold text-gray-800 mb-2 text-center">🔐 My Vault</h2>
-                        <input
-                            type="text"
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Search vault..."
-                            className="w-full p-2 border border-gray-300 rounded-lg text-black"
-                            disabled={loading}
+                        <VaultList
+                            vault={filteredVault}
+                            visiblePasswords={visiblePasswords}
+                            setVisiblePasswords={setVisiblePasswords}
+                            handleCopyVaultPassword={handleCopyVaultPassword}
+                            handleEdit={handleEdit}
+                            handleDelete={handledelete}
+                            loading={loading}
+                            searchQuery={searchQuery}
                         />
-                    </div>
-                )}
+                    )}
 
-                {showVault && (
-
-                    <VaultList
-                        vault={filteredVault}
-                        visiblePasswords={visiblePasswords}
-                        setVisiblePasswords={setVisiblePasswords}
-                        handleCopyVaultPassword={handleCopyVaultPassword}
-                        handleEdit={handleEdit}
-                        handleDelete={handledelete}
+                    {/* Export / Import Vault Section */}
+                    <VaultExportImport
+                        vault={vault}
+                        cryptoKey={key}
+                        userId={userId}
+                        setVault={setVault}
+                        loadVault={loadVault}
                         loading={loading}
-                        searchQuery={searchQuery}
+                        setLoading={setLoading}
                     />
-                )}
 
-                {/* Export / Import Vault Section */}
-                <VaultExportImport
-                    vault={vault}
-                    cryptoKey={key}
-                    userId={userId}
-                    setVault={setVault}
-                    loadVault={loadVault}
-                    loading={loading}
-                    setLoading={setLoading}
-                />
-
-                <div className="mt-6">
-                    <button
-                        onClick={handleLogout}
-                        className="w-full bg-red-600 cursor-pointer text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition duration-200 disabled:bg-red-300 disabled:cursor-not-allowed"
-                        disabled={loading}
-                    >
-                        Log Out
-                    </button>
+                    <div className="mt-6">
+                        <button
+                            onClick={handleLogout}
+                            className="w-full bg-red-600 cursor-pointer text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition duration-200 disabled:bg-red-300 disabled:cursor-not-allowed"
+                            disabled={loading}
+                        >
+                            Log Out
+                        </button>
+                    </div>
                 </div>
             </div>
-        </div>
+        </>
     );
 }

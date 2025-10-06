@@ -12,3 +12,4 @@ const userSchema :Schema<IUser>  = new Schema({
 })
 
 export default mongoose.models.User || mongoose.model<IUser>("User",userSchema);
+
