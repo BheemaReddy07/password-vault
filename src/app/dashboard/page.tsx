@@ -8,6 +8,7 @@ import PasswordGenerator from "@/components/PasswordGenerator";
 import SaveVaultForm from "@/components/SaveVaultForm";
 import VaultList from "@/components/VaultList";
 import PasswordDisplay from "@/components/PasswordDisplay";
+import VaultExportImport from "@/components/VaultExportImport";
 
 interface VaultItem {
     id: string;
@@ -504,28 +505,15 @@ export default function Dashboard() {
                 )}
 
                 {/* Export / Import Vault Section */}
-                <div className="flex gap-2 m-6 ">
-                    {/* Export Button */}
-                    <button
-                        onClick={handleExportVault}
-                        className="flex-1 bg-purple-500 text-white font-semibold py-2 px-4 rounded-lg hover:bg-purple-600 transition disabled:bg-purple-300"
-                        disabled={loading || !vault.length}
-                    >
-                        Export Vault
-                    </button>
-
-                    {/* Import Button */}
-                    <label className="flex-1 bg-green-500 text-white font-semibold py-2 px-4 rounded-lg cursor-pointer text-center hover:bg-green-600 transition disabled:bg-green-300">
-                        Import Vault
-                        <input
-                            type="file"
-                            accept=".json"
-                            className="hidden"
-                            onChange={handleImportVault}
-                            disabled={loading}
-                        />
-                    </label>
-                </div>
+                <VaultExportImport
+                    vault={vault}
+                     cryptoKey={key}
+                    userId={userId}
+                    setVault={setVault}
+                    loadVault={loadVault}
+                    loading={loading}
+                    setLoading={setLoading}
+                />
 
 
             </div>
