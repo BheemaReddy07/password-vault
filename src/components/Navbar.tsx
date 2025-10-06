@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import ThemeToggle from "./ThemeToggle";
 import { useEffect, useState } from "react";
-
+import toast from "react-hot-toast"; 
 export default function Navbar() {
     const router = useRouter();
     const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -24,6 +24,7 @@ export default function Navbar() {
     const handleLogout = async () => {
         try {
             await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+            toast.success("Logged out successfully");
             setIsLoggedIn(false);
             router.push("/");
         } catch (err) {

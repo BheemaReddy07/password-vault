@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
+import toast from "react-hot-toast";  
 export default function Home() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
@@ -24,6 +24,7 @@ export default function Home() {
 
   const handleRedirect = () => {
     if (isLoggedIn) {
+      toast.success("Welcome back!");
       router.push("/dashboard");
     }
   };
