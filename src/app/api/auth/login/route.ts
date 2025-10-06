@@ -2,7 +2,7 @@ import dbConnect from "@/lib/mongodb";
 import User from "@/models/User";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
-
+import jwt from "jsonwebtoken";
 export async function POST(req:Request){
     try {
         await dbConnect();
@@ -18,7 +18,16 @@ export async function POST(req:Request){
         if(!ismatch){
             return NextResponse.json({message:"Invalid credentials"},{status:400});
         }
-        return NextResponse.json({message:"Login successful",userId:user._id},{status:200});
+        const token = jwt.sign( { userId: user._id, email: user.email },process.env.JWT_SECRET!,{expiresIn:'7d'});
+            const response = NextResponse.json({ success: true });
+            response.cookies.set("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+    });
+
+    return response;
     } catch (error) {
         return NextResponse.json({message:"Internal Server Error"},{status:500});
     }

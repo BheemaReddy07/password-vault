@@ -9,6 +9,7 @@ import SaveVaultForm from "@/components/SaveVaultForm";
 import VaultList from "@/components/VaultList";
 import PasswordDisplay from "@/components/PasswordDisplay";
 import VaultExportImport from "@/components/VaultExportImport";
+import { useRouter } from "next/navigation";
 
 interface VaultItem {
     id: string;
@@ -20,6 +21,9 @@ interface VaultItem {
 }
 
 export default function Dashboard() {
+    const [userId, setUserId] = useState<any>(null);
+    const router = useRouter();
+
     const [password, setPassword] = useState("");
     const [vault, setVault] = useState<VaultItem[]>([]);
     const [key, setKey] = useState<CryptoKey | null>(null);
@@ -46,7 +50,8 @@ export default function Dashboard() {
     const [username, setUsername] = useState("");
     const [url, setUrl] = useState("");
     const [notes, setNotes] = useState("");
-    const userId = "68e21d7adcfc6c77781049e2"; // Replace with auth-based user ID
+    //const userId = "68e21d7adcfc6c77781049e2"; // Replace with auth-based user ID
+
 
     // On first load, create/import key
     useEffect(() => {
@@ -72,12 +77,67 @@ export default function Dashboard() {
         }
         setupKey();
     }, []);
-
+    const loadVault = async () => {
+        if (!key) return;
+        setLoading(true);
+        setError("");
+        try {
+            const res = await fetch("/api/vault/list", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId }),
+            });
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || `Failed to fetch vault: ${res.statusText}`);
+            }
+            const { items } = await res.json();
+            console.log("Vault API Response:", items);
+            const decrypted: VaultItem[] = [];
+            for (const item of items) {
+                try {
+                    const plain = await decryptData(key, item.data, item.iv);
+                    decrypted.push({ id: item._id, ...plain });
+                } catch (err) {
+                    console.error(`Failed to decrypt vault item ${item._id}:`, err);
+                    decrypted.push({ id: item._id, title: "[Could not decrypt]", username: "", password: "" });
+                }
+            }
+            console.log("Decrypted vault items:", decrypted);
+            setVault(decrypted);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to load vault");
+            console.error("Load vault error:", err);
+            toast.error(err instanceof Error ? err.message : "Failed to load vault");
+        } finally {
+            setLoading(false);
+        }
+    };
     // Load vault when key is ready
     useEffect(() => {
-        if (key) loadVault();
-    }, [key]);
+        if (key && userId) loadVault();
+    }, [key , userId]);
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const res = await fetch("/api/auth/me");
+                if (!res.ok) {
+                    router.push("/login");
+                    return;
+                }
+                const data = await res.json();
+                setUserId(data.user._id);
+                console.log("Sending userId:", data.user._id);
+
+            } catch {
+                router.push("/login");
+            }
+        };
+        fetchUser();
+    }, [router]);
+
+    if (!userId) return <p className="text-center mt-10">Loading...</p>;
     // Password generator
     const handleGenerate = () => {
         if (!options.lower && !options.upper && !options.numbers && !options.symbols) {
@@ -241,42 +301,7 @@ export default function Dashboard() {
     }
 
     // Load vault
-    const loadVault = async () => {
-        if (!key) return;
-        setLoading(true);
-        setError("");
-        try {
-            const res = await fetch("/api/vault/list", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId }),
-            });
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.error || `Failed to fetch vault: ${res.statusText}`);
-            }
-            const { items } = await res.json();
-            console.log("Vault API Response:", items);
-            const decrypted: VaultItem[] = [];
-            for (const item of items) {
-                try {
-                    const plain = await decryptData(key, item.data, item.iv);
-                    decrypted.push({ id: item._id, ...plain });
-                } catch (err) {
-                    console.error(`Failed to decrypt vault item ${item._id}:`, err);
-                    decrypted.push({ id: item._id, title: "[Could not decrypt]", username: "", password: "" });
-                }
-            }
-            console.log("Decrypted vault items:", decrypted);
-            setVault(decrypted);
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to load vault");
-            console.error("Load vault error:", err);
-            toast.error(err instanceof Error ? err.message : "Failed to load vault");
-        } finally {
-            setLoading(false);
-        }
-    };
+
 
     const filteredVault = vault.filter(item =>
         (item.title?.toLowerCase() || "").includes(searchQuery.toLowerCase()) ||
@@ -394,15 +419,27 @@ export default function Dashboard() {
         }
     };
 
+    const handleLogout = async () => {
+        try {
+            await fetch("/api/auth/logout", { method: "POST" });
+            router.push("/login");
+        } catch (err) {
+            console.error("Logout failed:", err);
+        }
+    };
+
 
 
 
     return (
         <div className="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+
             <div className="bg-white rounded-lg shadow-lg p-6 max-w-md w-full">
                 <h1 className="text-2xl font-bold text-gray-800 mb-6 text-center">
                     Password Generator
                 </h1>
+
+
 
                 {/* Error Message */}
                 {error && (
@@ -507,7 +544,7 @@ export default function Dashboard() {
                 {/* Export / Import Vault Section */}
                 <VaultExportImport
                     vault={vault}
-                     cryptoKey={key}
+                    cryptoKey={key}
                     userId={userId}
                     setVault={setVault}
                     loadVault={loadVault}
@@ -515,7 +552,15 @@ export default function Dashboard() {
                     setLoading={setLoading}
                 />
 
-
+                <div className="mt-6">
+                    <button
+                        onClick={handleLogout}
+                        className="w-full bg-red-600 cursor-pointer text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition duration-200 disabled:bg-red-300 disabled:cursor-not-allowed"
+                        disabled={loading}
+                    >
+                        Log Out
+                    </button>
+                </div>
             </div>
         </div>
     );

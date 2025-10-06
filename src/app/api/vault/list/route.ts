@@ -8,8 +8,10 @@ export async function POST(req : Request){
          const {userId} = await req.json();
             if(!userId){    
                 return NextResponse.json({message:"UserId is required"},{status:400});
-            }   
+            }  
+            console.log("Fetching vault for userId:", userId); 
             const items = await Vault.find({userId});
+            console.log("Found entries:", items);
             return NextResponse.json({items},{status:200});
 
     } catch (error) {
