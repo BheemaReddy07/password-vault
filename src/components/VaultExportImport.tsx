@@ -3,7 +3,7 @@
 import React from "react";
 import toast from "react-hot-toast";
 import { VaultItem } from "@/app/dashboard/page";
-import { encryptData, decryptData, importKey } from "@/lib/crypto";
+import { encryptData, decryptData } from "@/lib/crypto";
 
 interface VaultExportImportProps {
     vault: VaultItem[];
@@ -15,9 +15,17 @@ interface VaultExportImportProps {
     setLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
+interface DecryptedItem {
+  title: string;
+  username: string;
+  password: string;
+  url?: string;
+  notes?: string;
+}
+
 const VaultExportImport: React.FC<VaultExportImportProps> = ({
     vault,
-     cryptoKey,
+    cryptoKey,
     userId,
     setVault,
     loadVault,
@@ -26,12 +34,12 @@ const VaultExportImport: React.FC<VaultExportImportProps> = ({
 }) => {
 
     const handleExportVault = async () => {
-        if (!vault.length || ! cryptoKey) return;
+        if (!vault.length || !cryptoKey) return;
         setLoading(true);
         try {
             const encryptedItems = await Promise.all(
                 vault.map(async (item) => {
-                    const encrypted = await encryptData( cryptoKey, {
+                    const encrypted = await encryptData(cryptoKey, {
                         title: item.title,
                         username: item.username,
                         password: item.password,
@@ -58,7 +66,7 @@ const VaultExportImport: React.FC<VaultExportImportProps> = ({
     };
 
     const handleImportVault = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (! cryptoKey) return;
+        if (!cryptoKey) return;
         const file = e.target.files?.[0];
         if (!file) return;
 
@@ -70,10 +78,25 @@ const VaultExportImport: React.FC<VaultExportImportProps> = ({
             const decryptedItems: VaultItem[] = [];
             for (const item of importedItems) {
                 try {
-                    const plain = await decryptData( cryptoKey, item.data, item.iv);
-                    decryptedItems.push({ id: crypto.randomUUID(), ...plain });
+                    const plain = await decryptData(cryptoKey, item.data, item.iv) as DecryptedItem;
+                    decryptedItems.push({
+                        id: crypto.randomUUID(),
+                        title: plain.title || "",
+                        username: plain.username || "",
+                        password: plain.password || "",
+                        url: plain.url || "",
+                        notes: plain.notes || "",
+                    });
                 } catch (err) {
                     console.warn("Failed to decrypt imported item:", err);
+                    decryptedItems.push({
+                        id: crypto.randomUUID(),
+                        title: "[Failed to decrypt]",
+                        username: "",
+                        password: "",
+                        url: "",
+                        notes: "",
+                    });
                 }
             }
 
@@ -101,7 +124,7 @@ const VaultExportImport: React.FC<VaultExportImportProps> = ({
                 );
                 if (duplicate) continue;
 
-                const encrypted = await encryptData( cryptoKey, {
+                const encrypted = await encryptData(cryptoKey, {
                     title: item.title,
                     username: item.username,
                     password: item.password,
