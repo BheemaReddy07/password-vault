@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+ # 🔐 Password Vault
 
-## Getting Started
+A secure, privacy-first password manager built with **Next.js**, **MongoDB**, and **TypeScript**.  
+This project lets users **generate**, **encrypt**, **store**, and **manage** passwords safely inside their personal vault.
 
-First, run the development server:
+---
+
+## 🚀 Features
+
+- ✅ **Strong Password Generator** — Create random, secure passwords instantly  
+- 🔒 **End-to-End Encryption** — Passwords are encrypted in the browser before saving  
+- 💾 **Personal Vault** — Add, view, edit, and delete saved passwords  
+- ☁️ **Secure Cloud Storage** — Data stored safely in MongoDB  
+- 📤 **Export & Import Vault** — Backup or restore encrypted data easily  
+- ⚡ **Fast & Modern UI** — Built with React 19, Next.js 15, and Tailwind CSS 4  
+
+---
+
+## 🧱 Tech Stack
+
+**Frontend:**  
+- Next.js 15 (App Router)  
+- React 19  
+- Tailwind CSS 4  
+- React Hot Toast for notifications  
+- React Icons  
+
+**Backend / API:**  
+- Next.js API Routes  
+- MongoDB (via Mongoose)  
+- bcryptjs for password hashing  
+- jsonwebtoken for authentication  
+
+---
+
+
+## ⚙️ Installation & Setup
+
+### 1️⃣ Clone the repo
 
 ```bash
+git clone https://github.com/BheemaReddy07/password-vault.git
+cd password-vault
+
+npm install
+
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Environtment Variables
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- MONGODB_URI=your_mongodb_connection_string
+- JWT_SECRET=your_secret_key
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+## 💡 Security Notes
 
-To learn more about Next.js, take a look at the following resources:
+- All passwords are AES-encrypted using a generated key in the browser.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- The server never sees raw passwords.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Uses JWT authentication for secure user sessions.
 
-## Deploy on Vercel
+## 🧑‍💻 Developer
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- 👤 Bheema Subramanyeswar Reddy Tatiparthi
+- 💻 Full Stack Developer (MERN / Next.js)
+- 📧 bheemareddy2910@gmail.com
+  
+- 🌐 https://bheemareddy-portfolio.vercel.app
